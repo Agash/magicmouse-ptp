@@ -1,0 +1,62 @@
+;
+; magicmouse_ptp.inx
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=HIDClass
+ClassGuid={745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider=%ProviderString%
+CatalogFile=magicmouse_ptp.cat
+DriverVer=01/16/2026,1.0.0.0
+PnpLockdown=1
+
+[SourceDisksNames]
+1 = %DiskId1%,,,""
+
+[SourceDisksFiles]
+magicmouse_ptp.sys = 1,,
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[ControlFlags]
+; Exclude from automatic install during development
+ExcludeFromSelect=*
+
+[Manufacturer]
+%StdMfg%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+; Matches Magic Mouse 2 (PID 030D)
+%DeviceDesc%=MagicMouse, HID\VID_05AC&PID_030D 
+
+[MagicMouse.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+magicmouse_ptp.sys
+
+[MagicMouse.NT.HW]
+AddReg=MagicMouse_AddReg
+
+[MagicMouse_AddReg]
+HKR,,DeviceCharacteristics,0x10001,0x0100      ; FILE_DEVICE_SECURE_OPEN
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)"   ; SDDL
+
+[MagicMouse.NT.Services]
+AddService = MagicMouseDriver, 2, MagicMouse_Service_Inst
+
+[MagicMouse_Service_Inst]
+DisplayName    = %ServiceDesc%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\magicmouse_ptp.sys
+
+[Strings]
+ProviderString = "Non-Commercial Open Source"
+StdMfg = "Apple Compatible"
+DiskId1 = "Magic Mouse Driver Disk"
+DeviceDesc = "Apple Magic Mouse (Rust Hybrid)"
+ServiceDesc = "Apple Magic Mouse Hybrid Driver"

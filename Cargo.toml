@@ -1,16 +1,13 @@
 [workspace]
-members = [
-  "general/echo/kmdf/driver/*",
-  "general/echo/kmdf/exe",
-  "tools/dv/kmdf/fail_driver_pool_leak",
-]
+members = ["driver"]
 resolver = "2"
 
 [workspace.package]
 edition = "2021"
 publish = false
-repository = "https://github.com/microsoft/windows-rust-driver-samples"
-license = "MIT OR Apache-2.0"
+repository = "https://github.com/Agash/magicmouse-ptp"
+# Creative Commons Attribution-NonCommercial 4.0 International
+license = "CC-BY-NC-4.0"
 
 [workspace.metadata.wdk.driver-model]
 driver-type = "KMDF"

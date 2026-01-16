@@ -3,5 +3,19 @@
     "+nightly"
   ],
   "rust-analyzer.rustfmt.rangeFormatting.enable": true,
-  "evenBetterToml.formatter.crlf": true
+  "evenBetterToml.formatter.crlf": true,
+  "cSpell.words": [
+    "NTSTATUS",
+    "PDRIVER",
+    "PNPPOWER",
+    "PUNICODE",
+    "repr",
+    "WDFCONTEXT",
+    "WDFDEVICE",
+    "WDFDRIVER",
+    "WDFIOTARGET",
+    "WDFMEMORY",
+    "WDFQUEUE",
+    "WDFREQUEST"
+  ]
 }
