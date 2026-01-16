@@ -28,8 +28,9 @@ ExcludeFromSelect=*
 %StdMfg%=Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
-; Matches Magic Mouse 2 (PID 030D)
-%DeviceDesc%=MagicMouse, HID\VID_05AC&PID_030D 
+; Match the exact Hardware IDs reported by your device
+%DeviceDesc%=MagicMouse, BTHENUM\{00001124-0000-1000-8000-00805f9b34fb}_VID&0001004c_PID&0269
+%DeviceDesc%=MagicMouse, HID\{00001124-0000-1000-8000-00805f9b34fb}_VID&0001004c_PID&0269&Col01
 
 [MagicMouse.NT]
 CopyFiles=Drivers_Dir
