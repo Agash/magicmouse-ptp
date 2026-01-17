@@ -56,7 +56,6 @@ pub unsafe extern "C" fn evt_device_add(
         println!("evt_device_add: Failed to get device context");
         return wdk_sys::STATUS_INSUFFICIENT_RESOURCES;
     }
-    (*device_context).io_target_started = false;
     (*device_context).magic_sequence_sent = false;
     
     println!("evt_device_add: Device created successfully, creating queues");

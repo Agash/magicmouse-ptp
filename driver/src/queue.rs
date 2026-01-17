@@ -1,11 +1,12 @@
-use crate::device::{evt_read_complete, get_device_context, send_magic_sequence};
+use crate::device::{evt_read_complete, get_device_context};
 use core::ffi::c_void;
 use wdk::println;
 use wdk_sys::{
     call_unsafe_wdf_function_binding, WDFQUEUE, WDFREQUEST, WDF_REQUEST_SEND_OPTIONS,
 };
 
-const MAGIC_SEQ_MM2: &[u8] = &[0xD7, 0x01];
+// For now, we're NOT sending the magic sequence to avoid any deadlock risk
+// We'll add it back once the basic filter driver is working
 
 pub unsafe extern "C" fn evt_io_device_control(
     queue: WDFQUEUE,
@@ -18,10 +19,6 @@ pub unsafe extern "C" fn evt_io_device_control(
         "evt_io_device_control: IOCTL {:#010X}, input {}, output {}",
         ioctl_code, input_len, output_len
     );
-    
-    // Try to send magic sequence on first IOCTL
-    try_send_magic_sequence(queue);
-    
     forward_request(queue, request, None);
 }
 
@@ -44,9 +41,6 @@ pub unsafe extern "C" fn evt_io_read(queue: WDFQUEUE, request: WDFREQUEST, lengt
     
     let device = call_unsafe_wdf_function_binding!(WdfIoQueueGetDevice, queue);
     
-    // Try to send magic sequence on first read
-    try_send_magic_sequence(queue);
-    
     // Set completion routine to intercept the response
     call_unsafe_wdf_function_binding!(
         WdfRequestSetCompletionRoutine,
@@ -56,36 +50,6 @@ pub unsafe extern "C" fn evt_io_read(queue: WDFQUEUE, request: WDFREQUEST, lengt
     );
     
     forward_request(queue, request, None);
-}
-
-unsafe fn try_send_magic_sequence(queue: WDFQUEUE) {
-    let device = call_unsafe_wdf_function_binding!(WdfIoQueueGetDevice, queue);
-    let device_context = get_device_context(device as wdk_sys::WDFOBJECT);
-    
-    if device_context.is_null() {
-        return;
-    }
-    
-    // Only send once
-    if (*device_context).magic_sequence_sent {
-        return;
-    }
-    
-    if !(*device_context).io_target_started {
-        println!("try_send_magic_sequence: I/O target not ready yet");
-        return;
-    }
-    
-    println!("try_send_magic_sequence: Sending magic sequence now");
-    (*device_context).magic_sequence_sent = true;
-    
-    let status = send_magic_sequence(device, MAGIC_SEQ_MM2);
-    if status < 0 {
-        println!("try_send_magic_sequence: Failed with status {:#010X}", status);
-        // Don't retry - just log and continue
-    } else {
-        println!("try_send_magic_sequence: Success!");
-    }
 }
 
 unsafe fn forward_request(
