@@ -10,9 +10,8 @@ extern crate wdk_panic;
 static ALLOCATOR: wdk_alloc::WdkAllocator = wdk_alloc::WdkAllocator;
 
 use wdk_sys::{
-    call_unsafe_wdf_function_binding,
-    NTSTATUS, PDRIVER_OBJECT, PUNICODE_STRING, WDF_DRIVER_CONFIG,
-    WDF_NO_OBJECT_ATTRIBUTES, WDF_NO_HANDLE, WDFDRIVER,
+    call_unsafe_wdf_function_binding, NTSTATUS, PDRIVER_OBJECT, PUNICODE_STRING, WDFDRIVER,
+    WDF_DRIVER_CONFIG, WDF_NO_HANDLE, WDF_NO_OBJECT_ATTRIBUTES,
 };
 
 mod descriptors;
@@ -20,6 +19,7 @@ mod device;
 mod driver;
 mod input;
 mod queue;
+mod wdf_object_context; // Added helper
 
 use driver::evt_device_add;
 
@@ -34,14 +34,12 @@ pub unsafe extern "system" fn driver_entry(
 
     let mut driver_handle = WDF_NO_HANDLE as WDFDRIVER;
 
-    let status = call_unsafe_wdf_function_binding!(
+    call_unsafe_wdf_function_binding!(
         WdfDriverCreate,
         driver_object,
         registry_path,
         WDF_NO_OBJECT_ATTRIBUTES,
         &mut config,
         &mut driver_handle
-    );
-
-    status
+    )
 }

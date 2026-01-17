@@ -3,13 +3,13 @@
 ;
 
 [Version]
-Signature="$WINDOWS NT$"
-Class=HIDClass
-ClassGuid={745a17a0-74d3-11d0-b6fe-00a0c90f57da}
-Provider=%ProviderString%
-CatalogFile=magicmouse_ptp.cat
-DriverVer=01/16/2026,1.0.0.0
-PnpLockdown=1
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = %ProviderString%
+CatalogFile = magicmouse_ptp.cat
+DriverVer   = ; Set via build
+PnpLockdown = 1
 
 [SourceDisksNames]
 1 = %DiskId1%,,,""
@@ -21,32 +21,32 @@ magicmouse_ptp.sys = 1,,
 DefaultDestDir = 12
 
 [ControlFlags]
-; Exclude from automatic install during development
 ExcludeFromSelect=*
 
 [Manufacturer]
-%StdMfg%=Standard,NT$ARCH$
+%StdMfg% = Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
-; Match the exact Hardware IDs reported by your device
-%DeviceDesc%=MagicMouse, BTHENUM\{00001124-0000-1000-8000-00805f9b34fb}_VID&0001004c_PID&0269
-%DeviceDesc%=MagicMouse, HID\{00001124-0000-1000-8000-00805f9b34fb}_VID&0001004c_PID&0269&Col01
+; Match the Mouse Collection (Col01) of the Magic Mouse 2
+%DeviceDesc% = MagicMouse_Filter, HID\{00001124-0000-1000-8000-00805f9b34fb}_VID&0001004c_PID&0269&Col01
 
-[MagicMouse.NT]
-CopyFiles=Drivers_Dir
+[MagicMouse_Filter.NT]
+; Load standard mouse support
+Include = input.inf
+Needs   = HID_Mouse_Inst.NT
+CopyFiles = Drivers_Dir
 
-[Drivers_Dir]
-magicmouse_ptp.sys
+[MagicMouse_Filter.NT.HW]
+AddReg = MagicMouse_Filter_AddReg
 
-[MagicMouse.NT.HW]
-AddReg=MagicMouse_AddReg
+[MagicMouse_Filter_AddReg]
+; Install as Lower Filter to mouhid (0x00010008 = Append Multi_SZ)
+HKR,,"LowerFilters",0x00010008,"magicmouse_ptp"
 
-[MagicMouse_AddReg]
-HKR,,DeviceCharacteristics,0x10001,0x0100      ; FILE_DEVICE_SECURE_OPEN
-HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)"   ; SDDL
-
-[MagicMouse.NT.Services]
-AddService = MagicMouseDriver, 2, MagicMouse_Service_Inst
+[MagicMouse_Filter.NT.Services]
+Include = input.inf
+Needs   = HID_Mouse_Inst.NT.Services
+AddService = magicmouse_ptp,, MagicMouse_Service_Inst
 
 [MagicMouse_Service_Inst]
 DisplayName    = %ServiceDesc%
@@ -55,9 +55,12 @@ StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
 ServiceBinary  = %12%\magicmouse_ptp.sys
 
+[Drivers_Dir]
+magicmouse_ptp.sys
+
 [Strings]
 ProviderString = "Non-Commercial Open Source"
-StdMfg = "Apple Compatible"
-DiskId1 = "Magic Mouse Driver Disk"
-DeviceDesc = "Apple Magic Mouse (Rust Hybrid)"
-ServiceDesc = "Apple Magic Mouse Hybrid Driver"
+StdMfg         = "Apple Compatible"
+DiskId1        = "Magic Mouse Driver Disk"
+DeviceDesc     = "Apple Magic Mouse 2 (PTP Filter)"
+ServiceDesc    = "Magic Mouse PTP Filter Service"

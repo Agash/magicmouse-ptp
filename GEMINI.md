@@ -20,6 +20,10 @@ The driver must expose two Top-Level Collections (TLCs):
 - [ ] **NEXT: Multi-touch (PTP) Report Parsing**.
 - [ ] **NEXT: PTP Data Translation Layer**.
 
+## Current Debugging Task
+- Resolving 0xC000009C in EvtDeviceD0Entry.
+- Goal: Make Magic Sequence non-blocking and ensure HID IOCTLs are handled correctly to satisfy mshidkmdf.
+
 ## ⚠️ Critical Rules for Code Generation
 1. **Memory Safety**: Use `#[repr(C, packed)]` for all structs mapping to hardware reports. Avoid `unsafe` except for `wdk-sys` FFI calls.
 2. **No Std**: Use `core::` and `wdk_alloc`. Never use `std::`.
